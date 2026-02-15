@@ -21,3 +21,13 @@ export interface SkillCategory {
   name: string;
   skills: string[];
 }
+
+export interface GithubRepo {
+  id: number;
+  name: string;
+  description: string;
+  html_url: string;
+  stargazers_count: number;
+  language: string;
+  updated_at: string;
+}
