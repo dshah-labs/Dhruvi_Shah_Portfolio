@@ -4,6 +4,7 @@ import {
   Github, 
   Linkedin, 
   Mail, 
+  Phone,
   MapPin, 
   ChevronRight, 
   ExternalLink, 
@@ -25,6 +26,13 @@ const App: React.FC = () => {
   const [repos, setRepos] = useState<GithubRepo[]>([]);
   const [isReposLoading, setIsReposLoading] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [heroImageError, setHeroImageError] = useState(false);
+  const [typedName, setTypedName] = useState('');
+  const [namePhase, setNamePhase] = useState<'typing' | 'pausing' | 'deleting'>('typing');
+  const [typedDesignation, setTypedDesignation] = useState('');
+  const [designationPhase, setDesignationPhase] = useState<'typing' | 'pausing' | 'deleting'>('typing');
+  const [designationIndex, setDesignationIndex] = useState(0);
+  const designations = ['Data Scientist', 'AI/ML Engineer'];
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -59,6 +67,49 @@ const App: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fullName = 'Dhruvi Shah';
+    const timer = setTimeout(() => {
+      if (namePhase === 'typing') {
+        if (typedName.length < fullName.length) {
+          setTypedName(fullName.slice(0, typedName.length + 1));
+        } else {
+          setNamePhase('pausing');
+        }
+      } else if (namePhase === 'pausing') {
+        setNamePhase('deleting');
+      } else if (typedName.length > 0) {
+        setTypedName(fullName.slice(0, typedName.length - 1));
+      } else {
+        setNamePhase('typing');
+      }
+    }, namePhase === 'typing' ? 85 : namePhase === 'pausing' ? 950 : 50);
+
+    return () => clearTimeout(timer);
+  }, [typedName, namePhase]);
+
+  useEffect(() => {
+    const currentDesignation = designations[designationIndex];
+    const timer = setTimeout(() => {
+      if (designationPhase === 'typing') {
+        if (typedDesignation.length < currentDesignation.length) {
+          setTypedDesignation(currentDesignation.slice(0, typedDesignation.length + 1));
+        } else {
+          setDesignationPhase('pausing');
+        }
+      } else if (designationPhase === 'pausing') {
+        setDesignationPhase('deleting');
+      } else if (typedDesignation.length > 0) {
+        setTypedDesignation(currentDesignation.slice(0, typedDesignation.length - 1));
+      } else {
+        setDesignationIndex((prev) => (prev + 1) % designations.length);
+        setDesignationPhase('typing');
+      }
+    }, designationPhase === 'typing' ? 80 : designationPhase === 'pausing' ? 1100 : 45);
+
+    return () => clearTimeout(timer);
+  }, [typedDesignation, designationPhase, designationIndex]);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -68,9 +119,9 @@ const App: React.FC = () => {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 w-full z-40 bg-[#0a0a0c]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="font-heading text-2xl font-bold tracking-tighter text-white">
-            <span className="text-teal-400">DS</span><span className="opacity-40">.</span>SHAH
-          </div>
+          <a href="#hero" className="font-heading text-2xl font-bold tracking-tighter text-white">
+            <span className="text-teal-400">DHRUVI</span><span className="opacity-40">.</span>SHAH
+          </a>
           <div className="hidden md:flex gap-10 text-[13px] font-semibold tracking-widest uppercase">
             {['About', 'Experience', 'Projects', 'Skills'].map((item) => (
               <a 
@@ -95,30 +146,64 @@ const App: React.FC = () => {
       {/* Hero Section */}
       <section id="hero" className="min-h-screen flex flex-col justify-center px-6 relative overflow-hidden pt-20">
         <div className="max-w-7xl mx-auto w-full relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-500/5 border border-teal-500/20 rounded-full text-teal-400 text-[10px] font-black uppercase tracking-[0.2em] mb-8 animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-teal-500 animate-ping"></span>
-            Specializing in Agentic AI & MLOps
-          </div>
-          <h1 className="font-heading text-6xl md:text-9xl font-bold text-white mb-8 leading-[0.9] tracking-tighter">
-            Architecting <br/>
-            <span className="text-slate-700 italic font-light">future</span> intelligence.
-          </h1>
-          <p className="max-w-2xl text-lg md:text-2xl text-slate-400 mb-12 leading-relaxed font-light">
-            I'm <span className="text-white font-medium">Dhruvi Shah</span>, an AI Engineer based in NYC. 
-            Transforming complex data into <span className="text-teal-400">production-grade</span> AI systems.
-          </p>
-          <div className="flex flex-wrap gap-5">
-            <a href="https://github.com/dshah-labs" target="_blank" className="flex items-center gap-3 bg-slate-900/50 backdrop-blur-sm border border-white/5 hover:border-teal-500/50 hover:bg-slate-800 text-white px-8 py-4 rounded-xl transition-all duration-300 group">
-              <Github size={22} className="group-hover:text-teal-400" />
-              <span className="font-semibold uppercase tracking-widest text-xs">Explore Labs</span>
-            </a>
-            <a href="https://linkedin.com/in/dhruvi-s" target="_blank" className="flex items-center gap-3 bg-teal-600 hover:bg-teal-500 text-white px-8 py-4 rounded-xl transition-all duration-300 shadow-xl shadow-teal-600/10 hover:shadow-teal-500/20 active:scale-95">
-              <Linkedin size={22} />
-              <span className="font-semibold uppercase tracking-widest text-xs">Connect</span>
-            </a>
+          <div className="grid lg:grid-cols-[1.35fr_0.9fr] gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-500/5 border border-teal-500/20 rounded-full text-teal-400 text-[10px] font-black uppercase tracking-[0.2em] mb-8">
+                <span className="w-2 h-2 rounded-full bg-teal-500"></span>
+                Open to Data Scientist, AI Engineer, ML Engineer Roles
+              </div>
+              <h1 className="font-heading text-5xl md:text-8xl font-bold text-white mb-6 leading-[0.95] tracking-tighter">
+                <span className="typewriter-stack">
+                  <span className="typewriter-line">Hi, I'm</span>
+                  <span className="typewriter-line text-teal-400">
+                    {typedName}
+                    <span className="typewriter-cursor" aria-hidden="true"></span>
+                  </span>
+                </span>
+              </h1>
+              <div className="designation-loop mb-8">
+                <span className="designation-item">{typedDesignation}</span>
+                <span className="designation-cursor" aria-hidden="true"></span>
+              </div>
+              <p className="max-w-2xl text-lg md:text-xl text-slate-400 mb-12 leading-relaxed font-light">
+                Based in New York City. I design and deploy machine learning and GenAI systems that turn complex data into real business outcomes.
+              </p>
+              <div className="flex flex-wrap gap-5">
+                <a href="https://github.com/dshah-labs" target="_blank" className="flex items-center gap-3 bg-slate-900/50 backdrop-blur-sm border border-white/5 hover:border-teal-500/50 hover:bg-slate-800 text-white px-8 py-4 rounded-xl transition-all duration-300 group">
+                  <Github size={22} className="group-hover:text-teal-400" />
+                  <span className="font-semibold uppercase tracking-widest text-xs">Explore Labs</span>
+                </a>
+                <a href="https://linkedin.com/in/dhruvi-s" target="_blank" className="flex items-center gap-3 bg-teal-600 hover:bg-teal-500 text-white px-8 py-4 rounded-xl transition-all duration-300 shadow-xl shadow-teal-600/10 hover:shadow-teal-500/20 active:scale-95">
+                  <Linkedin size={22} />
+                  <span className="font-semibold uppercase tracking-widest text-xs">Connect</span>
+                </a>
+              </div>
+            </div>
+            <div className="relative w-full max-w-[460px] mx-auto lg:mx-0">
+              <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-teal-500/20 to-cyan-500/5 blur-xl"></div>
+              <div className="relative aspect-[4/5] rounded-[2.25rem] overflow-hidden border border-white/10 bg-[#131317]">
+                {heroImageError ? (
+                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#1b1b21] to-[#101015] text-center p-6">
+                    <div>
+                      <p className="font-heading text-5xl text-white tracking-tight mb-2">DH</p>
+                      <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Add /public/profile.jpeg</p>
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src="/profile.jpeg"
+                    alt="Dhruvi Shah"
+                    className="w-full h-full object-cover object-[center_70%] scale-[1.03]"
+                    onError={() => setHeroImageError(true)}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/15"></div>
+                <div className="absolute inset-0 bg-slate-950/10 mix-blend-multiply"></div>
+              </div>
+            </div>
           </div>
         </div>
-        
+
         {/* Abstract Background Decoration */}
         <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[800px] h-[800px] bg-teal-500/5 blur-[160px] rounded-full pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#0a0a0c] to-transparent"></div>
@@ -142,14 +227,10 @@ const App: React.FC = () => {
                 Currently, at <span className="text-white font-normal">Global Payments x Worldpay</span>, I focus on the intersection of Agentic AI and enterprise scalability—building the next generation of financial intelligence.
               </p>
             </div>
-            <div className="mt-12 grid grid-cols-3 gap-8">
+            <div className="mt-12 grid grid-cols-2 gap-8 max-w-md">
                <div className="flex flex-col">
                   <span className="text-4xl font-bold text-white font-heading">5+</span>
                   <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">Years Work</span>
-               </div>
-               <div className="flex flex-col">
-                  <span className="text-4xl font-bold text-white font-heading">2M+</span>
-                  <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">Merchants</span>
                </div>
                <div className="flex flex-col">
                   <span className="text-4xl font-bold text-white font-heading">Ivy</span>
@@ -158,24 +239,22 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="order-1 lg:order-2 relative">
-            <div className="aspect-[4/5] bg-slate-900 rounded-[2.5rem] overflow-hidden border border-white/5 relative group">
-              <img 
-                src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800" 
-                alt="Tech Workspace" 
-                className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
-              <div className="absolute bottom-8 left-8 right-8">
-                <div className="p-4 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10">
-                  <p className="text-xs text-teal-400 font-bold uppercase tracking-widest mb-1">Focus Area</p>
-                  <p className="text-white font-heading font-medium">Large Language Model Systems & Agentic Workflows</p>
+            <div className="aspect-[4/5] bg-slate-900 rounded-[2.5rem] overflow-hidden border border-white/5 relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-500/15 via-cyan-500/5 to-transparent"></div>
+              <div className="relative h-full p-10 md:p-12 flex flex-col justify-between">
+                <div>
+                  <p className="text-xs text-teal-400 font-black uppercase tracking-[0.3em] mb-5 opacity-80">Background</p>
+                  <h4 className="font-heading text-3xl md:text-4xl text-white leading-tight mb-6">Data-driven foundation with enterprise delivery experience.</h4>
+                  <p className="text-slate-400 text-base leading-relaxed">
+                    From LTIMindtree and Nielsen Media to Columbia and Global Payments, my path is centered on applying machine learning to measurable business impact.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                  <p className="text-xs text-slate-500 uppercase tracking-[0.2em] mb-2 font-black">Current</p>
+                  <p className="text-white font-medium">Global Payments x Worldpay</p>
+                  <p className="text-slate-400 text-sm mt-1">Data Scientist, AIML Team</p>
                 </div>
               </div>
-            </div>
-            {/* Floating Card */}
-            <div className="absolute -top-10 -right-10 hidden xl:flex bg-teal-600 p-8 rounded-3xl shadow-2xl shadow-teal-600/20 animate-bounce-slow flex-col items-center gap-4 border border-teal-400/30">
-              <Cpu className="text-white" size={40} />
-              <div className="text-white font-black text-center leading-none tracking-tighter uppercase text-sm">AI<br/>Driven</div>
             </div>
           </div>
         </div>
@@ -236,7 +315,7 @@ const App: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div>
               <h2 className="text-xs font-black text-teal-400 mb-4 tracking-[0.4em] uppercase opacity-70">Portfolio</h2>
-              <h3 className="font-heading text-4xl md:text-6xl font-bold text-white leading-tight">Flagship Initiatives</h3>
+              <h3 className="font-heading text-4xl md:text-6xl font-bold text-white leading-tight">Projects</h3>
             </div>
             <a href="https://github.com/dshah-labs" target="_blank" className="px-8 py-4 bg-white/5 border border-white/10 hover:border-teal-400/50 rounded-2xl text-white font-bold flex items-center gap-3 transition-all duration-300 hover:-translate-y-1">
               VIEW GITHUB LABS <Github size={18} />
@@ -253,6 +332,16 @@ const App: React.FC = () => {
                     <span className="text-[10px] font-black text-teal-500 uppercase tracking-[0.3em] mb-2 block">{project.organization || 'Independent Research'}</span>
                     <h4 className="text-3xl font-bold text-white mt-2 group-hover:text-teal-400 transition-colors leading-tight">{project.title}</h4>
                   </div>
+                  {project.link && (
+                    <a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 text-[10px] font-black tracking-widest uppercase text-slate-300 hover:text-white hover:border-teal-400/50 hover:bg-teal-500/10 transition-all"
+                    >
+                      GitHub <ExternalLink size={12} />
+                    </a>
+                  )}
                 </div>
                 <div className="space-y-5 mb-10 flex-1 relative z-10">
                   {project.bullets.map((b, i) => (
@@ -327,7 +416,7 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-xs font-black text-teal-400 mb-4 tracking-[0.4em] uppercase opacity-70">Capabilities</h2>
-            <h3 className="font-heading text-4xl md:text-6xl font-bold text-white">Technical Arsenal</h3>
+            <h3 className="font-heading text-4xl md:text-6xl font-bold text-white">Technical Skills</h3>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {SKILL_CATEGORIES.map((category, idx) => (
@@ -361,26 +450,34 @@ const App: React.FC = () => {
             <span className="text-teal-400 italic">impact</span>?
           </h2>
           <p className="text-slate-400 text-xl md:text-2xl mb-16 font-light max-w-2xl mx-auto">
-            Currently open to discussing <span className="text-white">leadership roles</span> and high-stakes <span className="text-white">AI architecture</span> challenges.
+            Currently open to discussing <span className="text-white">Data Scientist</span>, <span className="text-white">AI Engineer</span>, and <span className="text-white">ML Engineer</span> roles.
           </p>
-          <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
-            <a href="mailto:dms2338@columbia.edu" className="group flex flex-col items-center gap-6 p-8 rounded-[2rem] bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-500 w-full md:w-80">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <a href="mailto:dhruvi.shahus21@gmail.com" className="group flex flex-col items-center justify-center gap-6 p-8 rounded-[2rem] bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-500 w-full min-h-[260px]">
               <div className="w-20 h-20 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-xl shadow-teal-500/20 group-hover:scale-110 transition-transform">
                 <Mail size={32} />
               </div>
               <div>
                 <span className="text-xs text-slate-500 font-black uppercase tracking-widest block mb-1">Email Me</span>
-                <span className="text-lg font-bold text-white">dms2338@columbia.edu</span>
+                <span className="text-lg font-bold text-white">dhruvi.shahus21@gmail.com</span>
               </div>
             </a>
-            <div className="h-[1px] w-20 bg-white/5 hidden md:block"></div>
-            <a href="https://linkedin.com/in/dhruvi-s" target="_blank" className="group flex flex-col items-center gap-6 p-8 rounded-[2rem] bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-500 w-full md:w-80">
+            <a href="tel:+15204509370" className="group flex flex-col items-center justify-center gap-6 p-8 rounded-[2rem] bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-500 w-full min-h-[260px]">
+              <div className="w-20 h-20 bg-slate-700 rounded-full flex items-center justify-center text-white shadow-xl shadow-slate-700/20 group-hover:scale-110 transition-transform">
+                <Phone size={32} />
+              </div>
+              <div>
+                <span className="text-xs text-slate-500 font-black uppercase tracking-widest block mb-1">Call</span>
+                <span className="text-lg font-bold text-white whitespace-nowrap">+1 520 450 9370</span>
+              </div>
+            </a>
+            <a href="https://linkedin.com/in/dhruvi-s" target="_blank" className="group flex flex-col items-center justify-center gap-6 p-8 rounded-[2rem] bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-500 w-full min-h-[260px]">
               <div className="w-20 h-20 bg-[#0077b5] rounded-full flex items-center justify-center text-white shadow-xl shadow-[#0077b5]/20 group-hover:scale-110 transition-transform">
                 <Linkedin size={32} />
               </div>
               <div>
                 <span className="text-xs text-slate-500 font-black uppercase tracking-widest block mb-1">Connect</span>
-                <span className="text-lg font-bold text-white">LinkedIn Profile</span>
+                <span className="text-lg font-bold text-white whitespace-nowrap">LinkedIn Profile</span>
               </div>
             </a>
           </div>
@@ -417,8 +514,50 @@ const App: React.FC = () => {
           0%, 100% { transform: translateY(-5%); }
           50% { transform: translateY(5%); }
         }
+        @keyframes caret-blink {
+          0%, 49% { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
         .animate-bounce-slow {
           animation: bounce-slow 4s ease-in-out infinite;
+        }
+        .typewriter-stack {
+          display: inline-flex;
+          flex-direction: column;
+        }
+        .typewriter-line {
+          display: flex;
+          align-items: center;
+          min-height: 1em;
+        }
+        .typewriter-cursor {
+          width: 0.09em;
+          height: 0.95em;
+          margin-left: 0.08em;
+          background: #2dd4bf;
+          display: inline-block;
+          animation: caret-blink 1s step-end infinite;
+        }
+        .designation-loop {
+          min-height: 1.8rem;
+          display: flex;
+          align-items: center;
+        }
+        .designation-item {
+          color: #cbd5e1;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          font-size: 0.82rem;
+          font-weight: 800;
+          white-space: nowrap;
+        }
+        .designation-cursor {
+          width: 0.09em;
+          height: 0.85rem;
+          margin-left: 0.18rem;
+          background: #7dd3fc;
+          display: inline-block;
+          animation: caret-blink 1s step-end infinite;
         }
       `}</style>
     </div>
